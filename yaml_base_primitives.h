@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <iostream>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -8,7 +9,8 @@
 #include <yaml-cpp/yaml.h>
 
 // Helper type traits / meta functions.
-namespace {
+namespace cpp_yaml_struct {
+namespace type_traits {
 
 // is_indexable_container
 template <typename T>
@@ -62,58 +64,67 @@ size_t GetSize(const T& array_like) {
   }
 }
 
-};  // namespace
+// always_false
+template <typename T>
+struct always_false : std::false_type {};
+
+};  // namespace type_traits
 
 struct YamlInitable {};
 
 template<typename T>
-bool InitFromYaml(T& data, const YAML::Node& node);
-
-template<typename T>
-bool CheckAndInit(T& child_data,
-                  const YAML::Node& parent_node,
-                  const std::string& child_key,
-                  const std::string& parent_name) {
-  YAML::Node child_node = parent_node[child_key];
-
-  if (!child_node) {
-    std::cout << "WARNING (YAML): No value for \"" << child_key << "\" ";
-    std::cout << "in \"" << parent_name << "\"" << std::endl;
+bool CheckSequence(const T& data, const YAML::Node& node, const std::string& path) {
+  if (!node.IsSequence()) {
+    std::cout << "WARNING (YAML): Value for \"" << path;
+    std::cout << "\" is not sequence." << std::endl;
     return false;
   }
 
-  if constexpr (::is_sequence<T>::value) {
-    if (!child_node.IsSequence()) {
-      std::cout << "WARNING (YAML): Value for \"" << child_key << "\" ";
-      std::cout << "in \"" << parent_name << "\" is not sequence." << std::endl;
+  if constexpr (type_traits::is_fixed_array<T>::value) {
+    size_t len = type_traits::GetSize(data);
+    if (node.size() != len) {
+      std::cout << "WARNING (YAML): Length of \"" << path;
+      std::cout << "\" is not " << len << "." << std::endl;
       return false;
-    }
-
-    if constexpr (::is_fixed_array<T>::value) {
-      size_t len = ::GetSize(child_data);
-      if (child_node.size() != len) {
-        std::cout << "WARNING (YAML): Length of \"" << child_key << "\" ";
-        std::cout << "in \"" << parent_name << "\" is not " << len << "." << std::endl;
-        return false;
-      }
     }
   }
 
-  return InitFromYaml(child_data, child_node);
+  return true;
 }
 
 template<typename T>
-bool InitFromYaml(T& data, const YAML::Node& node) {
+bool CheckKeyAndInit(T& data,
+                     const YAML::Node& parent_node,
+                     const std::string& name,
+                     const std::string& parent_path) {
+  YAML::Node node = parent_node[name];
+  const std::string path = parent_path + "/" + name;
+
+  if (!node) {
+    std::cout << "WARNING (YAML): No value for \"" << path << "\"." << std::endl;
+    return false;
+  }
+
+  return InitFromYaml(data, node, path);
+}
+
+template<typename T>
+bool InitFromYaml(T& data, const YAML::Node& node, const std::string& path) {
   // Sequences.
-  if constexpr (::is_sequence<T>::value) {
-    if constexpr (::is_vector<T>::value) {
+  if constexpr (type_traits::is_sequence<T>::value) {
+    if (!CheckSequence(data, node, path)) {
+      return false;
+    }
+
+    if constexpr (type_traits::is_vector<T>::value) {
       data.clear();
       data.resize(node.size());
     }
 
     bool success = true;
-    for (size_t i = 0; i < ::GetSize(data); ++i) {
-      success &= InitFromYaml(data[i], node[i]);
+    for (size_t i = 0; i < type_traits::GetSize(data); ++i) {
+      const std::string elem_path = path + "[" + std::to_string(i) + "]";
+      success &= InitFromYaml(data[i], node[i], elem_path);
     }
     return success;
 
@@ -123,3 +134,5 @@ bool InitFromYaml(T& data, const YAML::Node& node) {
     return true;
   }
 }
+
+}; // namespace cpp_yaml_struct

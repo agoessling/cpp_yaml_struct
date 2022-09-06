@@ -7,7 +7,7 @@ int main() {
   YAML::Node config = YAML::LoadFile("test.yaml");
 
   test::TestStruct init;
-  InitFromYaml(init, config["TestStruct"]);
+  cpp_yaml_struct::CheckKeyAndInit(init, config, "TestStruct", "");
 
   std::cout << "d: " << init.d << std::endl;
   std::cout << "b: " << init.b << std::endl;
@@ -53,6 +53,10 @@ int main() {
     if (i < len_outer - 1) std::cout << ", ";
   }
   std::cout << "]" << std::endl;
+
+  std::cout << "struct_arr: " << std::endl;
+  std::cout << "  [0][0].i: " << init.struct_arr[0][0].i << std::endl;
+  std::cout << "  [0][1].i: " << init.struct_arr[0][1].i << std::endl;
 
   return 0;
 }

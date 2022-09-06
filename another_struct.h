@@ -5,7 +5,7 @@
 
 namespace test {
 
-struct SubStruct : YamlInitable {
+struct SubStruct : cpp_yaml_struct::YamlInitable {
   int i;
 };
 

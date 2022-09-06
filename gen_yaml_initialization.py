@@ -6,7 +6,7 @@ import CppHeaderParser
 def get_init_function_declaration(type_name):
   return f'''\
 template <>
-inline bool InitFromYaml({type_name}& data, const YAML::Node& node)'''
+inline bool InitFromYaml({type_name}& data, const YAML::Node& node, const std::string& path)'''
 
 
 def get_init_function(struct):
@@ -15,8 +15,8 @@ def get_init_function(struct):
 
   num_prop = len(struct['properties']['public'])
   for i, member in enumerate(struct['properties']['public']):
-    s += '  success &= CheckAndInit('
-    s += f'data.{member["name"]}, node, "{member["name"]}", "{struct["name"]}");\n'
+    s += '  success &= CheckKeyAndInit('
+    s += f'data.{member["name"]}, node, "{member["name"]}", path);\n'
 
   s += '  return success;\n'
 
@@ -28,7 +28,7 @@ def get_init_function(struct):
 def get_header_header(inputs, primitives):
   s = ''
   s += '#pragma once\n\n'
-
+  s += '#include <string>\n\n'
   s += '#include <yaml-cpp/yaml.h>\n'
 
   for f in inputs:
@@ -38,6 +38,8 @@ def get_header_header(inputs, primitives):
 
   for f in primitives:
     s += f'\n#include "{f}"'
+
+  s += '\n\nnamespace cpp_yaml_struct {'
 
   return s
 
@@ -73,7 +75,7 @@ def main():
 
     for struct in header.classes.values():
       for base in struct['inherits']:
-        if base['class'] == 'YamlInitable':
+        if 'YamlInitable' in base['class']:
           structs.append(struct)
 
   s = get_header_header(args.input, args.primitives)
@@ -85,6 +87,8 @@ def main():
   for struct in structs:
     s += '\n\n'
     s += get_init_function(struct)
+
+  s += '\n\n}; // namespace cpp_yaml_struct'
 
   if args.output:
     with open(args.output, 'w') as f:

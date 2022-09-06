@@ -6,6 +6,9 @@ exports_files(["yaml_base_primitives.h"])
 cc_library(
     name = "yaml_base_primitives",
     hdrs = ["yaml_base_primitives.h"],
+    deps = [
+        "@yaml-cpp",
+    ],
     visibility = ["//visibility:public"],
 )
 
@@ -13,6 +16,7 @@ cc_library(
     name = "struct_to_initialize",
     hdrs = ["struct_to_initialize.h"],
     deps = [
+        ":another_struct",
         ":yaml_base_primitives",
     ],
 )
@@ -34,8 +38,8 @@ cc_library(
 yaml_initialization(
     name = "yaml_initialization",
     inputs = [
-        ":struct_to_initialize",
         ":another_struct",
+        ":struct_to_initialize",
     ],
 )
 
