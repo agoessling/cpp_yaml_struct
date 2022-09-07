@@ -72,6 +72,14 @@ struct always_false : std::false_type {};
 
 struct YamlInitable {};
 
+// Only declare here and save definition for end of generated header so all InitFromYaml templates
+// are available.
+template<typename T>
+bool CheckKeyAndInit(T& data,
+                     const YAML::Node& parent_node,
+                     const std::string& name,
+                     const std::string& parent_path);
+
 template<typename T>
 bool CheckSequence(const T& data, const YAML::Node& node, const std::string& path) {
   if (!node.IsSequence()) {
@@ -90,22 +98,6 @@ bool CheckSequence(const T& data, const YAML::Node& node, const std::string& pat
   }
 
   return true;
-}
-
-template<typename T>
-bool CheckKeyAndInit(T& data,
-                     const YAML::Node& parent_node,
-                     const std::string& name,
-                     const std::string& parent_path) {
-  YAML::Node node = parent_node[name];
-  const std::string path = parent_path + "/" + name;
-
-  if (!node) {
-    std::cout << "WARNING (YAML): No value for \"" << path << "\"." << std::endl;
-    return false;
-  }
-
-  return InitFromYaml(data, node, path);
 }
 
 template<typename T>

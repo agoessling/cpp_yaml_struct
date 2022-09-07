@@ -88,6 +88,24 @@ def main():
     s += '\n\n'
     s += get_init_function(struct)
 
+  s += '''\n
+// Declare here so all InitFromYaml templates are available.
+template<typename T>
+bool CheckKeyAndInit(T& data,
+                     const YAML::Node& parent_node,
+                     const std::string& name,
+                     const std::string& parent_path) {
+  YAML::Node node = parent_node[name];
+  const std::string path = parent_path + "/" + name;
+
+  if (!node) {
+    std::cout << "WARNING (YAML): No value for \\"" << path << "\\"." << std::endl;
+    return false;
+  }
+
+  return InitFromYaml(data, node, path);
+}'''
+
   s += '\n\n}; // namespace cpp_yaml_struct'
 
   if args.output:
