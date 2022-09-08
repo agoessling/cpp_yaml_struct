@@ -13,6 +13,15 @@ cc_library(
 )
 
 cc_library(
+    name = "check_and_init_impl",
+    hdrs = ["check_and_init_impl.h"],
+    deps = [
+        "@yaml-cpp",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
     name = "struct_to_initialize",
     hdrs = ["struct_to_initialize.h"],
     deps = [

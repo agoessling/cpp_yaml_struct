@@ -2,6 +2,7 @@ def _yaml_initialization_impl(ctx):
     dep_cc_infos = []
     headers = []
     primitives = []
+    post_includes = []
 
     dep_cc_infos.append(ctx.attr._yaml_cpp[CcInfo])
 
@@ -15,12 +16,17 @@ def _yaml_initialization_impl(ctx):
         dep_cc_infos.append(primitive[CcInfo])
         primitives += primitive[CcInfo].compilation_context.direct_public_headers
 
+    for include in ctx.attr._post_includes:
+        dep_cc_infos.append(include[CcInfo])
+        post_includes += include[CcInfo].compilation_context.direct_public_headers
+
     output = ctx.actions.declare_file("{}.h".format(ctx.label.name))
 
     args = ctx.actions.args()
     args.add_all("-i", headers)
     args.add("-o", output)
     args.add_all("-p", primitives)
+    args.add_all("--post_includes", post_includes)
 
     ctx.actions.run(
         outputs = [output],
@@ -68,6 +74,13 @@ yaml_initialization = rule(
         "_base_primitives": attr.label(
             doc = "Base YAML initialization primitives.",
             default = Label("@cpp_yaml_struct//:yaml_base_primitives"),
+            providers = [CcInfo],
+        ),
+        "_post_includes": attr.label_list(
+            doc = "Includes for after InitFromYaml definitions.",
+            default = [
+                Label("@cpp_yaml_struct//:check_and_init_impl"),
+            ],
             providers = [CcInfo],
         ),
         "_yaml_cpp": attr.label(

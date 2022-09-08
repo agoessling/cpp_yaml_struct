@@ -61,6 +61,8 @@ def main():
   parser.add_argument('-o', '--output', help='Output header file.')
   parser.add_argument('-p', '--primitives', nargs='+', default=[],
       help='YAML primitive initialization header file(s).')
+  parser.add_argument('--post_includes', nargs='+', default=[],
+      help='Headers to include after InitFromYaml declarations.')
   parser.add_argument('-d', '--debug', action='store_true',
       help='Print details from parsed header files.')
 
@@ -88,25 +90,12 @@ def main():
     s += '\n\n'
     s += get_init_function(struct)
 
-  s += '''\n
-// Declare here so all InitFromYaml templates are available.
-template<typename T>
-bool CheckKeyAndInit(T& data,
-                     const YAML::Node& parent_node,
-                     const std::string& name,
-                     const std::string& parent_path) {
-  YAML::Node node = parent_node[name];
-  const std::string path = parent_path + "/" + name;
-
-  if (!node) {
-    std::cout << "WARNING (YAML): No value for \\"" << path << "\\"." << std::endl;
-    return false;
-  }
-
-  return InitFromYaml(data, node, path);
-}'''
-
   s += '\n\n}; // namespace cpp_yaml_struct'
+
+  s += '\n'
+  for include in args.post_includes:
+    s += '\n'
+    s += f'#include "{include}"'
 
   if args.output:
     with open(args.output, 'w') as f:
