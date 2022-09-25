@@ -79,7 +79,7 @@ yaml_initialization = rule(
         "_post_includes": attr.label_list(
             doc = "Includes for after InitFromYaml definitions.",
             default = [
-                Label("@cpp_yaml_struct//:check_and_init_impl"),
+                Label("@cpp_yaml_struct//:yaml_base_primitives_impl"),
             ],
             providers = [CcInfo],
         ),

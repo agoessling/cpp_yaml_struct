@@ -2,8 +2,9 @@
 
 namespace test {
 
+template<typename T>
 struct SomeStruct {
-  int i;
+  T i;
 };
 
 };  // namespace test

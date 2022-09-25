@@ -2,8 +2,10 @@
 
 #include <array>
 #include <string>
+#include <utility>
 #include <vector>
 
+#include "another_header.h"
 #include "another_struct.h"
 #include "yaml_base_primitives.h"
 
@@ -16,10 +18,13 @@ struct TestStruct : YamlInitable {
   bool b;
   int i;
   std::string s;
-  std::vector<std::vector<double>> vec;
-  std::array<double, 5> arr;
-  std::vector<double> arr_vec[3];
+  std::vector<std::vector<int>> vec;
+  std::array<int, 5> arr;
+  std::vector<int> arr_vec[3];
   SubStruct struct_arr[1][2];
+  std::pair<int, SubStruct> pair;
+  SomeStruct<int> some_struct;
+  std::vector<SomeStruct<int>> some_struct_vec;
 };
 
 };  // namespace test

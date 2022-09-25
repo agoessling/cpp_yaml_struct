@@ -13,8 +13,8 @@ cc_library(
 )
 
 cc_library(
-    name = "check_and_init_impl",
-    hdrs = ["check_and_init_impl.h"],
+    name = "yaml_base_primitives_impl",
+    hdrs = ["yaml_base_primitives_impl.h"],
     deps = [
         "@yaml-cpp",
     ],
@@ -25,6 +25,7 @@ cc_library(
     name = "struct_to_initialize",
     hdrs = ["struct_to_initialize.h"],
     deps = [
+        ":another_header",
         ":another_struct",
         ":yaml_base_primitives",
     ],
@@ -44,21 +45,32 @@ cc_library(
     hdrs = ["another_header.h"],
 )
 
+cc_library(
+    name = "yaml_primitives",
+    hdrs = ["yaml_primitives.h"],
+    deps = [
+        ":yaml_base_primitives",
+    ],
+)
+
 yaml_initialization(
     name = "yaml_initialization",
+    primitives = [":yaml_primitives"],
     inputs = [
         ":another_struct",
         ":struct_to_initialize",
     ],
 )
 
-cc_binary(
+cc_test(
     name = "test_initialization",
     srcs = ["test_initialization.cc"],
     data = ["test.yaml"],
     deps = [
-        ":yaml_initialization",
         ":struct_to_initialize",
+        ":yaml_initialization",
+        "@gtest",
+        "@gtest//:gtest_main",
     ],
 )
 

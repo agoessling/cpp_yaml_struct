@@ -1,62 +1,44 @@
+#include <array>
 #include <iostream>
+#include <utility>
+#include <vector>
+
+#include <gtest/gtest.h>
 
 #include "struct_to_initialize.h"
 #include "yaml_initialization.h"
 
-int main() {
+TEST(TestStruct, Initialization) {
   YAML::Node config = YAML::LoadFile("test.yaml");
 
   test::TestStruct init;
-  cpp_yaml_struct::CheckKeyAndInit(init, config, "TestStruct", "");
+  EXPECT_TRUE(cpp_yaml_struct::CheckKeyAndInit(init, config, "TestStruct", ""));
 
-  std::cout << "d: " << init.d << std::endl;
-  std::cout << "b: " << init.b << std::endl;
-  std::cout << "i: " << init.i << std::endl;
-  std::cout << "s: " << init.s << std::endl;
+  EXPECT_EQ(init.d, 5.34);
+  EXPECT_EQ(init.b, true);
+  EXPECT_EQ(init.i, 442);
+  EXPECT_EQ(init.s, "Hello, World!");
 
-  std::cout << "vec: [";
-  size_t len_outer = init.vec.size();
-  for (size_t i = 0; i < len_outer; ++i) {
-    std::cout << "[";
+  std::vector<std::vector<int>> vec{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+  EXPECT_EQ(init.vec, vec);
 
-    size_t len_inner = init.vec[i].size();
-    for (size_t j = 0; j < len_inner; ++j) {
-      std::cout << init.vec[i][j];
-      if (j < len_inner - 1) std::cout << ", ";
-    }
+  std::array<int, 5> arr = {1, 2, 3, 4, 5};
+  EXPECT_EQ(init.arr, arr);
 
-    std::cout << "]";
-    if (i < len_outer - 1) std::cout << ", ";
-  }
-  std::cout << "]" << std::endl;
+  std::vector<int> arr_vec[3] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+  EXPECT_EQ(init.arr_vec[0], arr_vec[0]);
+  EXPECT_EQ(init.arr_vec[1], arr_vec[1]);
+  EXPECT_EQ(init.arr_vec[2], arr_vec[2]);
 
-  std::cout << "arr: [";
-  len_outer = sizeof(init.arr) / sizeof(init.arr[0]);
-  for (size_t i = 0; i < len_outer; ++i) {
-    std::cout << init.arr[i];
-    if (i < len_outer - 1) std::cout << ", ";
-  }
-  std::cout << "]" << std::endl;
+  EXPECT_EQ(init.struct_arr[0][0].i, 555);
+  EXPECT_EQ(init.struct_arr[0][1].i, 555);
 
-  std::cout << "arr_vec: [";
-  len_outer = sizeof(init.arr_vec) / sizeof(init.arr_vec[0]);
-  for (size_t i = 0; i < len_outer; ++i) {
-    std::cout << "[";
+  EXPECT_EQ(init.pair.first, 1);
+  EXPECT_EQ(init.pair.second.i, 555);
 
-    size_t len_inner = init.arr_vec[i].size();
-    for (size_t j = 0; j < len_inner; ++j) {
-      std::cout << init.arr_vec[i][j];
-      if (j < len_inner - 1) std::cout << ", ";
-    }
+  EXPECT_EQ(init.some_struct.i, 230);
 
-    std::cout << "]";
-    if (i < len_outer - 1) std::cout << ", ";
-  }
-  std::cout << "]" << std::endl;
-
-  std::cout << "struct_arr: " << std::endl;
-  std::cout << "  [0][0].i: " << init.struct_arr[0][0].i << std::endl;
-  std::cout << "  [0][1].i: " << init.struct_arr[0][1].i << std::endl;
-
-  return 0;
+  EXPECT_EQ(init.some_struct_vec.size(), 2);
+  EXPECT_EQ(init.some_struct_vec[0].i, 231);
+  EXPECT_EQ(init.some_struct_vec[1].i, 232);
 }
