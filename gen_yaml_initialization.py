@@ -61,6 +61,8 @@ def main():
   parser.add_argument('-o', '--output', help='Output header file.')
   parser.add_argument('-p', '--primitives', nargs='+', default=[],
       help='YAML primitive initialization header file(s).')
+  parser.add_argument('-e', '--extra_types', nargs='+', default=[],
+      help='Fully qualified type name of additional structs to make initable.')
   parser.add_argument('--post_includes', nargs='+', default=[],
       help='Headers to include after InitFromYaml declarations.')
   parser.add_argument('-d', '--debug', action='store_true',
@@ -76,9 +78,14 @@ def main():
       print(header.toJSON())
 
     for struct in header.classes.values():
+      if qualified_struct_type(struct) in args.extra_types:
+        structs.append(struct)
+        continue
+
       for base in struct['inherits']:
         if 'YamlInitable' in base['class']:
           structs.append(struct)
+          continue
 
   s = get_header_header(args.input, args.primitives)
 

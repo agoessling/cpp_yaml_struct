@@ -60,6 +60,7 @@ yaml_initialization(
         ":another_struct",
         ":struct_to_initialize",
     ],
+    extra_types = ["test::OutOfLineStruct"],
 )
 
 cc_test(

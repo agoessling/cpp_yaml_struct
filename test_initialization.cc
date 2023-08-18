@@ -41,4 +41,6 @@ TEST(TestStruct, Initialization) {
   EXPECT_EQ(init.some_struct_vec.size(), 2);
   EXPECT_EQ(init.some_struct_vec[0].i, 231);
   EXPECT_EQ(init.some_struct_vec[1].i, 232);
+
+  EXPECT_EQ(init.out_of_line.i, 3.14f);
 }

@@ -14,3 +14,4 @@ TestStruct:
   pair: [1, *another]
   some_struct: {i: 230}
   some_struct_vec: [{i: 231}, {i: 232}]
+  out_of_line: {i: 3.14}

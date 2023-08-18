@@ -25,6 +25,7 @@ struct TestStruct : YamlInitable {
   std::pair<int, SubStruct> pair;
   SomeStruct<int> some_struct;
   std::vector<SomeStruct<int>> some_struct_vec;
+  OutOfLineStruct out_of_line;
 };
 
 };  // namespace test

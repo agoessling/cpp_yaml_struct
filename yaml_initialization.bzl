@@ -26,6 +26,7 @@ def _yaml_initialization_impl(ctx):
     args.add_all("-i", headers)
     args.add("-o", output)
     args.add_all("-p", primitives)
+    args.add_all("-e", ctx.attr.extra_types)
     args.add_all("--post_includes", post_includes)
 
     ctx.actions.run(
@@ -64,6 +65,9 @@ yaml_initialization = rule(
         "primitives": attr.label_list(
             doc = "Primitive initialization template headers.",
             providers = [CcInfo],
+        ),
+        "extra_types": attr.string_list(
+            doc = "Fully qualified name of extra types which should be initable.",
         ),
         "_gen_yaml_initialization": attr.label(
             doc = "YAML initialization generation script.",
